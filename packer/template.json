@@ -1,0 +1,40 @@
+{
+  "variables": {
+    "service_account_key_file": "key.json"
+  },
+  "builders": [
+    {
+      "type": "googlecompute",
+      "account_file": "account.json",
+      "project_id": "{{ user `google_project_id` }}",
+      "image_name": "ubuntu-1804-dev-e516",
+      "source_image": "ubuntu-1804-bionic-v20180911",
+      "ssh_username": "packer",
+      "zone": "us-central1-a"
+    },
+    {
+      "type": "yandex",
+      "service_account_key_file": "{{user `service_account_key_file`}}",
+      "folder_id": "{{user `folder_id`}}",
+      "image_name": "ubuntu-2004-lts-nginx-{{isotime | clean_resource_name}}",
+      "image_family": "ubuntu-web-server",
+      "image_description": "Test image nginx",
+      "source_image_family": "ubuntu-2004-lts",
+      "use_ipv4_nat": true,
+      "disk_type": "network-ssd",
+      "ssh_username": "ubuntu"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "echo 'updating apt cache'",
+        "sudo apt update -y",
+        "sudo apt install -y nginx nano git",
+        "sudo systemctl enable nginx",
+        "curl localhost"
+      ]
+    }
+  ]
+}
